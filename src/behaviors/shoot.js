@@ -33,8 +33,7 @@ export const SHOOT = {
       const dX = up || (down && !(left || right)) ? 0 : entity.flipX ? -1 : 1
       bullet.fire(entity.x, entity.y + 2, dX, up ? -1 : down ? 1 : 0, 50)
 
-      const rate = Phaser.Math.RND.between(8, 10) / 10
-      entity.scene.sound.play('shoot', { rate })
+      entity.scene.playSound('shoot', [8, 10])
     }
   },
 

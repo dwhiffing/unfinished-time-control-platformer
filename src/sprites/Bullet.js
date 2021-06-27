@@ -5,9 +5,11 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     scene.physics.world.enable(this)
     this.body.setAllowGravity(false)
     this.speed = 200
+    this.scene = scene
     this.damageAmount = 10
-    this.particles = this.scene.add.particles('tilemap')
-    this.emitter = this.particles.createEmitter(BULLET_EMITTER_CONFIG).stop()
+    this.emitter = this.scene.particles
+      .createEmitter(BULLET_EMITTER_CONFIG)
+      .stop()
   }
 
   fire(x, y, directionX, directionY, lifeSpan = 250) {
@@ -26,19 +28,19 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
+    if (!this.active) return
+
     this.emitter.setPosition(this.x, this.y)
     if (Math.abs(this.x - this.startX) > this.lifeSpan) {
-      this.destroy(false)
+      this.die(true)
     }
   }
 
-  destroy(useSound = true) {
+  die(useSound = true) {
+    if (!this.active) return
+
     this.emitter.explode(1)
-    useSound &&
-      this.scene.sound.play('hit', {
-        rate: Phaser.Math.RND.between(15, 20) / 10,
-        volume: 0.5,
-      })
+    useSound && this.scene.playSound('hit', [15, 20], { volume: 0.5 })
     this.setActive(false)
     this.setVisible(false)
   }

@@ -7,7 +7,7 @@ export const SCROLL = {
   },
 
   update(entity) {
-    entity.iter += 0.001
+    entity.iter += 0.004 * entity.scene.timeScale
     entity.tilePositionX = Math.floor(Math.cos(-entity.iter) * 100)
     entity.tilePositionY = Math.floor(Math.sin(-entity.iter) * 400)
   },

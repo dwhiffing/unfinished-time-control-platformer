@@ -42,10 +42,7 @@ export const HEALTH = {
 
       if (opts.screenShake) entity.scene.cameras.main.shake(100, 0.015)
 
-      if (opts.onDamageSoundKey)
-        entity.scene.sound.play(opts.onDamageSoundKey, {
-          rate: Phaser.Math.RND.between(8, 10) / 10,
-        })
+      if (opts.onDamageSoundKey) entity.scene.playSound(opts.onDamageSoundKey)
     }
 
     entity.die = () => {

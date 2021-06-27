@@ -86,7 +86,7 @@ export default class LevelService {
         if (bulletOrPlayer.name === 'player') {
           bulletOrPlayer.damage(10)
         } else if (bulletOrPlayer.active) {
-          bulletOrPlayer.destroy()
+          bulletOrPlayer.die()
           enemy.damage(bulletOrPlayer.damageAmount || 5)
         }
       },
@@ -95,7 +95,7 @@ export default class LevelService {
       this.player.bullets,
       this.groundLayer,
       (bullet, tile) => {
-        bullet.destroy()
+        bullet.die()
         if (tile.index === 5)
           tile.layer.tilemapLayer.removeTileAt(tile.x, tile.y)
       },

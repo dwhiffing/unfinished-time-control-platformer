@@ -12,39 +12,40 @@ export const JUMP = {
     entity.jumpCount = 1
 
     if (opts.emitter)
-      entity.jumpEmitter = entity.scene.add
-        .particles('tilemap')
+      entity.jumpEmitter = entity.scene.particles
         .createEmitter(JUMP_PARTICLE_CONFIG)
         .stop()
 
     entity.jump = () => {
-      if (entity.tintFill || entity.jumpCount === 0) return
+      if (
+        entity.tintFill ||
+        entity.jumpCount === 0 ||
+        entity.scene.timeScale <= 0
+      )
+        return
 
-      entity.body.useDamping = false
+      entity.body.setDamping(false)
       entity.jumpCount--
       entity.body?.setVelocityY(-opts.jumpHeight)
-      entity.anims?.play('jump', true)
+      entity.play({ key: 'jump' })
 
       if (opts.emitter) entity.jumpEmitter.explode(20)
 
-      if (opts.playSound) {
-        const rate = Phaser.Math.RND.between(8, 10) / 10
-        entity.scene.sound.play('jump', { rate })
-      }
+      if (opts.playSound) entity.scene.playSound('jump')
     }
 
     entity.land = () => {
       if (!entity.inAir) return
 
       entity.inAir = false
-      entity.body.useDamping = true
+      entity.body.setDamping(true)
+
       entity.jumpCount = opts.jumpCount
 
       if (opts.emitter) entity.jumpEmitter.explode(20)
 
       if (opts.playSound) {
-        const rate = Phaser.Math.RND.between(9, 10) / 10
-        entity.scene.sound.play('hit2', { rate, volume: 0.5 })
+        entity.scene.playSound('hit2', [9, 10], { volume: 0.5 })
       }
     }
   },

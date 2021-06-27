@@ -31,6 +31,6 @@
     "@babel/plugin-proposal-class-properties": "^7.14.5",
     "behavior-system": "^3.0.5",
     "lodash": "^4.17.20",
-    "phaser": "^3.24.1"
+    "phaser": "^3.55.2"
   }
 }

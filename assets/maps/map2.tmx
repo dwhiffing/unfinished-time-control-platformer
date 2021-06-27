@@ -37,6 +37,5 @@
   <object id="377" type="spawn" x="80" y="280">
    <point/>
   </object>
-  <object id="378" type="enemy" gid="80" x="176" y="304" width="16" height="16"/>
  </objectgroup>
 </map>

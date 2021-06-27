@@ -1,4 +1,4 @@
-import { WALK, FALL, JUMP, SHOOT, HEALTH } from '../behaviors'
+import { WALK, TRACKABLE, FALL, JUMP, SHOOT, HEALTH } from '../behaviors'
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, object) {
@@ -23,20 +23,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     scene.anims.create({
       key: `idle`,
-      frameRate: 4,
       repeat: -1,
       frames: getFrames(153, 154),
     })
 
     scene.anims.create({
       key: `walk`,
-      frameRate: 6,
       frames: getFrames(151, 152),
     })
 
     scene.anims.create({
       key: 'jump',
-      frameRate: 5,
       frames: getFrames(155, 156),
     })
 
@@ -44,6 +41,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.behaviors.set('jump', JUMP)
     this.behaviors.set('fall', FALL)
     this.behaviors.set('shoot', SHOOT)
+    this.behaviors.set('trackable', TRACKABLE)
     this.behaviors.set('health', HEALTH, {
       maxHealth: 100,
       screenShake: true,

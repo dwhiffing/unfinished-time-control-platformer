@@ -6,8 +6,8 @@ const game = new Phaser.Game({
   scene: Object.values(scenes),
   type: navigator.userAgent.includes('Chrome') ? Phaser.WEBGL : Phaser.CANVAS,
   parent: 'phaser-example',
-  width: 170,
-  height: 120,
+  width: 340,
+  height: 240,
   zoom: 10,
   transparent: true,
   pixelArt: true,
@@ -15,7 +15,7 @@ const game = new Phaser.Game({
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   physics: {
     default: 'arcade',
-    arcade: { fps: 60, tileBias: 16, debug: false },
+    arcade: { fps: 60, tileBias: 32, debug: false },
   },
   plugins: {
     global: [{ key: 'BehaviorPlugin', plugin: BehaviorPlugin, start: true }],

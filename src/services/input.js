@@ -5,6 +5,10 @@ export default class InputService {
     const noop = () => {}
 
     const player = this.scene.level.player
+
+    const getFrames = (start, end) =>
+      scene.anims.generateFrameNames('tilemap', { start, end })
+
     this.listeners = {
       leftPressed: () => (this.direction.left = true),
       leftReleased: () => (this.direction.left = false),
@@ -14,10 +18,40 @@ export default class InputService {
       upReleased: () => (this.direction.up = false),
       downPressed: () => (this.direction.down = true),
       downReleased: () => (this.direction.down = false),
-      shootPressed: () => player.shoot(),
-      jumpPressed: () => {
+      zPressed: () => player.shoot(),
+      spacePressed: () => {
         if (this.direction.down) player.fall()
         else player.jump()
+      },
+      xPressed: () => {
+        this.scene.tweens.add({
+          targets: [
+            this.scene.physics.world,
+            this.scene,
+            this.scene.time,
+            this.scene.tweens,
+            this.scene.particles,
+            player.anims,
+          ],
+          props: { timeScale: { value: (a, b, c, d) => (d === 0 ? 4 : 0.25) } },
+          ease: 'Power1',
+          duration: 800,
+        })
+      },
+      xReleased: () => {
+        this.scene.tweens.add({
+          targets: [
+            this.scene.physics.world,
+            this.scene,
+            this.scene.time,
+            this.scene.tweens,
+            this.scene.particles,
+            player.anims,
+          ],
+          props: { timeScale: 1 },
+          ease: 'Power1',
+          duration: 800,
+        })
       },
     }
 
@@ -40,8 +74,12 @@ export default class InputService {
       this.cursors.right.addListener('up', this.listeners.rightReleased || noop)
       this.cursors.down.addListener('down', this.listeners.downPressed || noop)
       this.cursors.down.addListener('up', this.listeners.downReleased || noop)
-      this.zKey.addListener('down', this.listeners.shootPressed || noop)
-      this.spaceKey.addListener('down', this.listeners.jumpPressed || noop)
+      this.zKey.addListener('down', this.listeners.zPressed || noop)
+      this.zKey.addListener('up', this.listeners.zReleased || noop)
+      this.xKey.addListener('down', this.listeners.xPressed || noop)
+      this.xKey.addListener('up', this.listeners.xReleased || noop)
+      this.spaceKey.addListener('down', this.listeners.spacePressed || noop)
+      this.spaceKey.addListener('up', this.listeners.spaceReleased || noop)
     }
   }
 
