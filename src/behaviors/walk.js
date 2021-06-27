@@ -2,7 +2,6 @@ export const WALK = {
   options: {},
 
   $create: function (entity, opts) {
-    entity.canMove = true
     const scene = entity.scene
     entity.body.setMaxVelocity(600, 600)
     entity.body.useDamping = true
@@ -33,7 +32,7 @@ export const WALK = {
     })
 
     entity.walk = () => {
-      if (!entity.canMove) return
+      if (entity.tintFill) return
       let speed = entity.speed
 
       if (entity.body.onFloor()) {
@@ -70,7 +69,7 @@ export const WALK = {
     }
 
     entity.stop = () => {
-      if (!entity.canMove) return
+      if (entity.tintFill) return
       if (entity.body.onFloor()) {
         entity.walkEmitter.stop()
         entity.anims.play(`idle`, true)

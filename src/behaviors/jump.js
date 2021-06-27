@@ -21,7 +21,8 @@ export const JUMP = {
     })
 
     entity.jump = () => {
-      if (!entity.canMove) return
+      if (entity.tintFill) return
+
       if (entity.direction.down && entity.canFall) {
         return entity.fall()
       }

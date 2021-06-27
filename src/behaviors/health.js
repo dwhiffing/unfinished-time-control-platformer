@@ -1,56 +1,55 @@
 export const HEALTH = {
-  options: {},
+  options: {
+    maxHealth: 100,
+    onDamageSoundKey: 'hit',
+    screenShake: false,
+    onHealthChange: () => {},
+    onDestroy: () => {},
+  },
 
   $create: function (entity, opts) {
-    entity.maxHealth = 100
+    entity.maxHealth = opts.maxHealth
     entity.health = entity.maxHealth
-    entity.scene.hud.healthText.text = entity.health.toString()
+    opts.onHealthChange(entity.health)
 
     entity.heal = (amount) => {
       entity.health += amount
       if (entity.health > entity.maxHealth) {
         entity.health = entity.maxHealth
       }
-
-      entity.scene.hud.healthText.text = entity.health.toString()
+      opts.onHealthChange(entity.health)
     }
 
     entity.damage = (amount) => {
-      if (entity.justDamaged) return
+      if (entity.tintFill) return
 
-      entity.justDamaged = true
-      entity.scene.cameras.main.shake(100, 0.015)
       entity.health -= amount
-      entity.setTintFill(0xffffff)
-      entity.scene.sound.play('hit', {
-        rate: Phaser.Math.RND.between(8, 10) / 10,
-      })
+      opts.onHealthChange(entity.health)
+
       if (entity.health <= 0) entity.die()
 
-      entity.scene.hud.healthText.text = entity.health.toString()
       entity.setVelocity(entity.flipX ? 100 : -100, -100)
-      entity.canMove = false
+      entity.setTintFill(0xffffff)
       entity.scene.time.addEvent({
         delay: 250,
-        callback: () => {
-          entity.canMove = true
-          entity.clearTint()
-        },
+        callback: entity.clearTint.bind(entity),
       })
-      entity.scene.time.addEvent({
-        delay: 1000,
-        callback: () => {
-          entity.justDamaged = false
-        },
-      })
+
+      if (opts.screenShake) entity.scene.cameras.main.shake(100, 0.015)
+
+      if (opts.onDamageSoundKey)
+        entity.scene.sound.play(opts.onDamageSoundKey, {
+          rate: Phaser.Math.RND.between(8, 10) / 10,
+        })
     }
 
     entity.die = () => {
-      entity.scene.cameras.main.shake(200, 0.02)
+      if (opts.screenShake) entity.scene.cameras.main.shake(200, 0.02)
+
       entity.scene.time.addEvent({
         delay: 500,
         callback: () => {
-          entity.scene.scene.restart()
+          onDestroy()
           entity.destroy()
         },
       })
