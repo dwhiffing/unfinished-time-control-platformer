@@ -25,7 +25,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
-    const { x, y } = this.scene.player
+    const { x, y } = this.scene.level.player
 
     if (Phaser.Math.Distance.Between(this.x, this.y, x, y) < 200) {
       this.setActive(true)

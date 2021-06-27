@@ -6,8 +6,9 @@ export default class extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.cameras.main
+    this.behavior = this.plugins.get('BehaviorPlugin')
 
+    const { width, height } = this.cameras.main
     this.background = new Background(this)
 
     this.add
@@ -24,5 +25,10 @@ export default class extends Phaser.Scene {
       )
       .setFontSize(5)
       .setOrigin(0, 0.5)
+  }
+
+  update() {
+    this.behavior.preUpdate()
+    this.behavior.update()
   }
 }

@@ -6,8 +6,9 @@ export default class extends Phaser.Scene {
   }
 
   create() {
-    const { width, height } = this.cameras.main
+    this.behavior = this.plugins.get('BehaviorPlugin')
 
+    const { width, height } = this.cameras.main
     this.background = new Background(this)
 
     this.add
@@ -25,5 +26,10 @@ export default class extends Phaser.Scene {
       .image(width / 2 + 15, height - 10, 'tilemap', 224)
       .setInteractive()
       .on('pointerdown', () => this.scene.start('Credits'))
+  }
+
+  update() {
+    this.behavior.preUpdate()
+    this.behavior.update()
   }
 }

@@ -13,30 +13,17 @@ export default class HudService {
       .fillStyle(0x181425)
       .fillRect(2, 2, width - 4, 13)
       .setScrollFactor(0)
-      .setDepth(998)
 
     this.heartImage = this.scene.add
       .image(10, 8, 'tilemap', 47)
       .setScrollFactor(0)
-      .setDepth(999)
-    this.healthText = this.scene.add
-      .bitmapText(20, 6, 'pixel-dan', '100')
-      .setScrollFactor(0)
-      .setDepth(999)
-
     this.timerImage = this.scene.add
       .image(width - 25, 9, 'tilemap', 212)
       .setScrollFactor(0)
-      .setDepth(999)
-    this.timerText = this.scene.add
-      .bitmapText(width - 18, 6, 'pixel-dan', this.timer + 1)
-      .setScrollFactor(0)
-      .setDepth(999)
 
-    this.upgradeText = this.scene.add
-      .bitmapText(10, height - 10, 'pixel-dan', '')
-      .setScrollFactor(0)
-      .setDepth(999)
+    this.healthText = this.addText(20, 6, '100')
+    this.timerText = this.addText(width - 18, 6, this.timer + 1)
+    this.upgradeText = this.addText(10, height - 10, '')
 
     this.scene.time.addEvent({
       delay: 1000,
@@ -47,4 +34,7 @@ export default class HudService {
       },
     })
   }
+
+  addText = (x, y, text = '') =>
+    this.scene.add.bitmapText(x, y, 'pixel-dan', text).setScrollFactor(0)
 }

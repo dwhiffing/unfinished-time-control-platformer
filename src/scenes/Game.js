@@ -10,14 +10,10 @@ export default class extends Phaser.Scene {
 
   create() {
     this.behavior = this.plugins.get('BehaviorPlugin')
-
     this.background = new Background(this)
-    this.hud = new HudService(this)
     this.level = new LevelService(this, 'map')
-    this.player = this.level.player
-
-    // TODO: move to behavior?
     this.inputService = new InputService(this)
+    this.hud = new HudService(this)
   }
 
   update(time, delta) {

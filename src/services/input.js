@@ -2,6 +2,9 @@ export default class InputService {
   constructor(scene) {
     this.scene = scene
     this.direction = {}
+    const noop = () => {}
+
+    const player = this.scene.level.player
     this.listeners = {
       leftPressed: () => (this.direction.left = true),
       leftReleased: () => (this.direction.left = false),
@@ -11,14 +14,13 @@ export default class InputService {
       upReleased: () => (this.direction.up = false),
       downPressed: () => (this.direction.down = true),
       downReleased: () => (this.direction.down = false),
-      shootPressed: () => this.scene.player.shoot(),
+      shootPressed: () => player.shoot(),
       restartPressed: () => this.scene.scene.restart(),
       jumpPressed: () => {
-        if (this.direction.down) this.scene.player.fall()
-        else this.scene.player.jump()
+        if (this.direction.down) player.fall()
+        else player.jump()
       },
     }
-    const noop = () => {}
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       this.addTouchControls()

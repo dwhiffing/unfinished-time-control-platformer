@@ -48,7 +48,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       maxHealth: 100,
       screenShake: true,
       knockback: 100,
-      onHealthChange: (v) => this.scene.hud.healthText.setText(v),
+      onHealthChange: (v) => this.scene.hud?.healthText.setText(v),
       onDestroy: () => this.scene.scene.restart(),
     })
   }

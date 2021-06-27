@@ -10,16 +10,10 @@ export default class BehaviorPlugin extends Phaser.Plugins.BasePlugin {
   }
 
   enable(gameObject) {
-    let enabled = false
+    let enabled = this._system.enable(gameObject)
 
-    enabled = this._system.enable(gameObject)
-
-    if (
-      enabled === true &&
-      gameObject.events !== undefined &&
-      gameObject.events.onDestroy !== undefined
-    ) {
-      gameObject.events.onDestroy.add(this._onDestroyCallback, this._system)
+    if (enabled) {
+      gameObject.events?.onDestroy?.add(this._onDestroyCallback, this._system)
     }
 
     return enabled
@@ -27,16 +21,11 @@ export default class BehaviorPlugin extends Phaser.Plugins.BasePlugin {
 
   disable(gameObject, removeListener = true) {
     const disabled = this._system.disable(gameObject)
-    if (disabled === true && removeListener === true) {
-      if (
-        gameObject.events !== undefined &&
-        gameObject.events.onDestroy !== undefined
-      ) {
-        gameObject.events.onDestroy.remove(
-          this._onDestroyCallback,
-          this._system,
-        )
-      }
+    if (disabled && removeListener) {
+      gameObject.events?.onDestroy?.remove(
+        this._onDestroyCallback,
+        this._system,
+      )
     }
     return disabled
   }

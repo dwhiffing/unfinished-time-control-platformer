@@ -2,7 +2,7 @@ export const JUMP = {
   options: {
     gravity: 500,
     jumpHeight: 200,
-    jumpCount: 1,
+    jumpCount: 2,
     playSound: true,
     emitter: true,
   },
