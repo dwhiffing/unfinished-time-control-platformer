@@ -7,7 +7,6 @@ import { Spike } from '../sprites/Spike'
 export default class LevelService {
   constructor(scene, key) {
     this.scene = scene
-    this.trigger = this.trigger.bind(this)
     this.map = scene.make.tilemap({ key })
 
     const groundTiles = this.map.addTilesetImage('tilemap')
@@ -112,7 +111,7 @@ export default class LevelService {
     this.scene.cameras.main.setBounds(0, 0, this.width, this.height)
   }
 
-  trigger(name) {
+  trigger = (name) => {
     const triggeredSpawners = this.spawners.filter((s) =>
       s.properties.some((p) => p.name === 'trigger' && p.value === name),
     )

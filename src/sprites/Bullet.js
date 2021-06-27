@@ -6,24 +6,22 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.body.setAllowGravity(false)
     this.speed = 160
     this.damageAmount = 10
-
     this.particles = this.scene.add.particles('tilemap')
     this.emitter = this.particles.createEmitter(BULLET_EMITTER_CONFIG).stop()
   }
 
   fire(x, y, directionX, directionY, lifeSpan = 250) {
     this.startX = x
-
     this.setActive(true)
       .setVisible(true)
       .setPosition(x, y)
+      .setFrame(50)
+      .setSize(8, 8)
+      .setScale(1)
       .setVelocityX(this.speed * directionX)
       .setVelocityY(
         (directionX === 0 ? this.speed : this.speed * 0.5) * directionY,
       )
-      .setFrame(50)
-      .setSize(8, 8)
-      .setScale(1)
     this.lifeSpan = lifeSpan
   }
 

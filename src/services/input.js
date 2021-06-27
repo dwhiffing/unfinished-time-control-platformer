@@ -1,74 +1,32 @@
 export default class InputService {
-  constructor(scene) {
+  constructor(scene, listeners = {}) {
     this.scene = scene
-    this.player = this.scene.level.player
+    this.listeners = listeners
+    const noop = () => {}
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       this.addTouchControls()
+    } else {
+      this.cursors = this.scene.input.keyboard.createCursorKeys()
+      this.spaceKey = this.scene.input.keyboard.addKey('SPACE')
+      this.zKey = this.scene.input.keyboard.addKey('Z')
+      this.xKey = this.scene.input.keyboard.addKey('X')
+      this.rKey = this.scene.input.keyboard.addKey('R')
+
+      this.cursors.up.addListener('down', listeners.upPressed || noop)
+      this.cursors.up.addListener('up', listeners.upReleased || noop)
+      this.cursors.left.addListener('down', listeners.leftPressed || noop)
+      this.cursors.left.addListener('up', listeners.leftReleased || noop)
+      this.cursors.right.addListener('down', listeners.rightPressed || noop)
+      this.cursors.right.addListener('up', listeners.rightReleased || noop)
+      this.cursors.down.addListener('down', listeners.downPressed || noop)
+      this.cursors.down.addListener('up', listeners.downReleased || noop)
+      this.zKey.addListener('down', listeners.shootPressed || noop)
+      this.zKey.addListener('up', listeners.shootReleased || noop)
+      this.spaceKey.addListener('down', listeners.jumpPressed || noop)
+      this.spaceKey.addListener('up', listeners.jumpReleased || noop)
+      this.rKey.addListener('down', listeners.restartPressed || noop)
     }
-
-    this.cursors = this.scene.input.keyboard.createCursorKeys()
-    this.spaceKey = this.scene.input.keyboard.addKey('SPACE')
-    this.zKey = this.scene.input.keyboard.addKey('Z')
-    this.xKey = this.scene.input.keyboard.addKey('X')
-    this.rKey = this.scene.input.keyboard.addKey('R')
-
-    this.cursors.up.addListener('down', this.upPressed)
-    this.cursors.left.addListener('down', this.leftPressed)
-    this.cursors.right.addListener('down', this.rightPressed)
-    this.cursors.down.addListener('down', this.downPressed)
-    this.cursors.down.addListener('up', this.downReleased)
-    this.cursors.up.addListener('up', this.upReleased)
-    this.cursors.left.addListener('up', this.leftReleased)
-    this.cursors.right.addListener('up', this.rightReleased)
-    this.zKey.addListener('down', this.shootPressed)
-    this.zKey.addListener('up', this.shootReleased)
-    this.rKey.addListener('down', this.restartPressed)
-    this.spaceKey.addListener('down', this.jumpPressed)
-    this.spaceKey.addListener('up', this.jumpReleased)
-    this.chargeSound = this.scene.sound.add('charge2', {
-      rate: 0.5,
-      volume: 0.5,
-      loop: true,
-    })
-  }
-
-  leftPressed = () => (this.player.direction.left = true)
-  leftReleased = () => (this.player.direction.left = false)
-
-  rightPressed = () => (this.player.direction.right = true)
-  rightReleased = () => (this.player.direction.right = false)
-
-  upPressed = () => (this.player.direction.up = true)
-  upReleased = () => (this.player.direction.up = false)
-
-  downPressed = () => (this.player.direction.down = true)
-  downReleased = () => (this.player.direction.down = false)
-
-  jumpPressed = () => {
-    this.jumpJustPressed = true
-    this.player.direction.jump = true
-    this.jumpTime = +new Date()
-    this.scene.time.addEvent({
-      delay: 150,
-      callback: this.jumpReleased,
-    })
-  }
-  jumpReleased = () => {
-    if (!this.jumpJustPressed) return
-
-    this.jumpJustPressed = false
-    this.player.jump(+new Date() - this.jumpTime)
-  }
-
-  shootPressed = () => (this.player.direction.shoot = 1)
-
-  shootReleased = () => (this.player.direction.shoot = 0)
-
-  restartPressed = () => {
-    this.scene.sound.mute = true
-    const scene = this.scene
-    scene.scene.restart()
   }
 
   addTouchControls() {
@@ -81,22 +39,23 @@ export default class InputService {
     this.makeButton(X * 1.8, H * 1.6, 213, 'up')
     this.makeButton(X * 1.8, H + Y * 0.6, 215, 'down')
     this.makeButton(X * 2.6, H, 214, 'right')
-    this.makeButton(width - X, H, 217, 'jump').setAlpha(0)
-    this.makeButton(width - X * 2, H, 218, 'shoot').setAlpha(0)
-    // this.makeButton(width - X * 3, H, 219, 'missile').setAlpha(0)
+    this.makeButton(width - X, H, 217, 'jump')
+    this.makeButton(width - X * 2, H, 218, 'shoot')
   }
 
-  makeButton = (x, y, key, type) =>
-    this.scene.add
+  makeButton = (x, y, key, type) => {
+    const noop = () => {}
+    return this.scene.add
       .image(x, y, 'tilemap', key)
       .setScale(1)
       .setInteractive()
       .setScrollFactor(0)
       .setDepth(1000)
       .setAlpha(0.6)
-      .on('pointerdown', this[`${type}Pressed`])
-      .on('pointerup', this[`${type}Released`])
-      .on('pointerout', this[`${type}Released`])
+      .on('pointerdown', this.listeners[`${type}Pressed`] || noop)
+      .on('pointerup', this.listeners[`${type}Released`] || noop)
+      .on('pointerout', this.listeners[`${type}Released`] || noop)
+  }
 
   cleanup = () => {
     this.cursors.up.removeListener('down')
@@ -110,6 +69,4 @@ export default class InputService {
     this.cursors.left.removeListener('up')
     this.cursors.right.removeListener('up')
   }
-
-  update() {}
 }

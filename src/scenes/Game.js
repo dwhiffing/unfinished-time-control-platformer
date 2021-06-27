@@ -1,5 +1,7 @@
+import HudService from '../services/Hud'
 import InputService from '../services/input'
 import LevelService from '../services/level'
+import Background from '../sprites/Background'
 
 export default class extends Phaser.Scene {
   constructor() {
@@ -7,88 +9,33 @@ export default class extends Phaser.Scene {
   }
 
   create() {
-    this.iter = 0
-    this.timer = 299
-    this.background = this.add
-      .tileSprite(0, 0, window.innerWidth, window.innerHeight, 'background')
-      .setScrollFactor(0)
-    this.time.addEvent({
-      delay: 300,
-      callback: () => {
-        this.sound.mute = false
-      },
-    })
-    this.background2 = this.add
-      .graphics(0, 0)
-      .fillStyle(0x181425)
-      .fillRect(0, 0, this.cameras.main.width, 17)
-      .fillStyle(0x3a4466)
-      .fillRect(1, 1, this.cameras.main.width - 2, 15)
-      .fillStyle(0x181425)
-      .fillRect(2, 2, this.cameras.main.width - 4, 13)
-      .setScrollFactor(0)
-      .setDepth(998)
-
-    this.heartImage = this.add
-      .image(10, 8, 'tilemap', 47)
-      .setScrollFactor(0)
-      .setDepth(999)
-    this.healthText = this.add
-      .bitmapText(20, 6, 'pixel-dan', '100')
-      .setScrollFactor(0)
-      .setDepth(999)
-
-    // this.ammoImage = this.add
-    //   .image(45, 9, 'tilemap', 49)
-    //   .setScrollFactor(0)
-    //   .setDepth(999)
-    // this.ammoText = this.add
-    //   .bitmapText(55, 6, 'pixel-dan', '5')
-    //   .setScrollFactor(0)
-    //   .setDepth(999)
-
-    this.timerImage = this.add
-      .image(this.cameras.main.width - 25, 9, 'tilemap', 212)
-      .setScrollFactor(0)
-      .setDepth(999)
-
-    this.timerText = this.add
-      .bitmapText(this.cameras.main.width - 18, 6, 'pixel-dan', this.timer + 1)
-      .setScrollFactor(0)
-      .setDepth(999)
-
-    this.upgradeText = this.add
-      .bitmapText(10, this.cameras.main.height - 10, 'pixel-dan', '')
-      .setScrollFactor(0)
-      .setDepth(999)
-
     this.behavior = this.plugins.get('BehaviorPlugin')
 
-    this.time.addEvent({
-      delay: 1000,
-      repeat: -1,
-      callback: () => {
-        if (this.timer < 0) {
-          this.sound.muted = true
-          this.scene.restart()
-        }
-        if (this.timer >= 0) this.timerText.setText(this.timer--)
-      },
-    })
-
+    this.background = new Background(this)
+    this.hud = new HudService(this)
     this.level = new LevelService(this, 'map')
     this.player = this.level.player
-    this.inputService = new InputService(this)
+
+    // TODO: move to behavior?
+    this.inputService = new InputService(this, {
+      leftPressed: () => (this.player.direction.left = true),
+      leftReleased: () => (this.player.direction.left = false),
+      rightPressed: () => (this.player.direction.right = true),
+      rightReleased: () => (this.player.direction.right = false),
+      upPressed: () => (this.player.direction.up = true),
+      upReleased: () => (this.player.direction.up = false),
+      downPressed: () => (this.player.direction.down = true),
+      downReleased: () => (this.player.direction.down = false),
+      shootPressed: () => (this.player.direction.shoot = 1),
+      shootReleased: () => (this.player.direction.shoot = 0),
+      jumpPressed: () => this.player.jump(150),
+      restartPressed: () => this.scene.restart(),
+    })
   }
 
   update(time, delta) {
-    this.iter += 0.0008
-    this.background.tilePositionX = Math.floor(Math.cos(-this.iter) * 500)
-    this.background.tilePositionY = Math.floor(Math.sin(-this.iter) * 100)
     this.behavior.preUpdate()
     this.behavior.update()
-    this.inputService.update(time, delta)
     this.level.update(time, delta)
-    this.level.player.update()
   }
 }
