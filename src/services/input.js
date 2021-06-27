@@ -15,7 +15,6 @@ export default class InputService {
       downPressed: () => (this.direction.down = true),
       downReleased: () => (this.direction.down = false),
       shootPressed: () => player.shoot(),
-      restartPressed: () => this.scene.scene.restart(),
       jumpPressed: () => {
         if (this.direction.down) player.fall()
         else player.jump()
@@ -29,7 +28,6 @@ export default class InputService {
       this.spaceKey = this.scene.input.keyboard.addKey('SPACE')
       this.zKey = this.scene.input.keyboard.addKey('Z')
       this.xKey = this.scene.input.keyboard.addKey('X')
-      this.rKey = this.scene.input.keyboard.addKey('R')
 
       this.cursors.up.addListener('down', this.listeners.upPressed || noop)
       this.cursors.up.addListener('up', this.listeners.upReleased || noop)
@@ -44,7 +42,6 @@ export default class InputService {
       this.cursors.down.addListener('up', this.listeners.downReleased || noop)
       this.zKey.addListener('down', this.listeners.shootPressed || noop)
       this.spaceKey.addListener('down', this.listeners.jumpPressed || noop)
-      this.rKey.addListener('down', this.listeners.restartPressed || noop)
     }
   }
 
