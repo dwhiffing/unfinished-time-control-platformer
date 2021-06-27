@@ -17,20 +17,7 @@ export default class extends Phaser.Scene {
     this.player = this.level.player
 
     // TODO: move to behavior?
-    this.inputService = new InputService(this, {
-      leftPressed: () => (this.player.direction.left = true),
-      leftReleased: () => (this.player.direction.left = false),
-      rightPressed: () => (this.player.direction.right = true),
-      rightReleased: () => (this.player.direction.right = false),
-      upPressed: () => (this.player.direction.up = true),
-      upReleased: () => (this.player.direction.up = false),
-      downPressed: () => (this.player.direction.down = true),
-      downReleased: () => (this.player.direction.down = false),
-      shootPressed: () => (this.player.direction.shoot = 1),
-      shootReleased: () => (this.player.direction.shoot = 0),
-      jumpPressed: () => this.player.jump(150),
-      restartPressed: () => this.scene.restart(),
-    })
+    this.inputService = new InputService(this)
   }
 
   update(time, delta) {

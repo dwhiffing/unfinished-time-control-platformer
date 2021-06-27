@@ -1,151 +1,76 @@
+import { HEALTH } from '../behaviors'
 import { ObjectSprite } from './Object'
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, object) {
-    super(scene, object.x, object.y - 8, 'tilemap')
-    this.object = object
+  constructor(scene, props) {
+    super(scene, props.x, props.y - 8, 'tilemap')
+
+    this.object = props
     this.scene = scene
     this.scene.add.existing(this)
     this.scene.physics.world.enable(this)
+    this.scene.behavior.enable(this)
+    this.behaviors.set('health', HEALTH, {
+      maxHealth: 50,
+      onDestroy: this.onDestroy,
+    })
 
-    const props = object.properties || []
-    const getPropValue = (n, defaultValue = 0) =>
-      (props.find((p) => p.name === n) || { value: defaultValue }).value
-    const typeFromProp = getPropValue('type', 0)
-
-    this.type = +typeFromProp || +object.gid - 76
-    this.health = 50
-    this.spawned = false
-    this.delay = getPropValue('delay', 0)
-    this.direction = getPropValue('direction', 1)
-    this.baseSpeed = getPropValue('speed', 1)
-
+    this.type = +getPropValue(props, 'type', 0) || +props.gid - 76
+    this.delay = getPropValue(props, 'delay', 0)
+    this.direction = getPropValue(props, 'direction', 1)
+    this.speed = getPropValue(props, 'speed', 1) * 50
     this.setSize(8, 9)
     this.setOffset(4, 8)
     this.setFrame(this.type + 75)
   }
 
   update() {
-    const distToPlayer = Phaser.Math.Distance.Between(
-      this.x,
-      this.y,
-      this.scene.player.x,
-      this.scene.player.y,
-    )
-    if (distToPlayer < 200) {
+    const { x, y } = this.scene.player
+
+    if (Phaser.Math.Distance.Between(this.x, this.y, x, y) < 200) {
       this.setActive(true)
-      if (!this.spawned) this.move()
+      this.spawn()
     } else {
       this.setActive(false)
-      this.x = this.object.x
-      this.y = this.object.y - 8
-    }
-    if (
-      this.shouldStop &&
-      (this.body.onFloor() || this.body.onCeiling()) &&
-      this.body.velocity.x !== 0
-    ) {
-      this.setVelocityX(0)
+      this.setPosition(this.object.x, this.object.y - 8)
     }
   }
 
-  doInit = (vx = 0, vy = 0, gravity, delay, callback) => {
-    this.scene.time.addEvent({
-      delay: 0,
-      callback: () => {
-        this.body.setGravityY(gravity)
-        callback()
-      },
-    })
-    this.setVelocity(vx, vy)
-    this.callback = this.scene.time.addEvent({
-      delay,
-      repeat: -1,
-      callback: () => {
-        if (!this.active) {
-          this.setVelocity(0)
-          return
-        }
-        callback()
-      },
-    })
-  }
-
-  move = () => {
+  spawn = () => {
     if (this.spawned) return
     this.spawned = true
-    this.speed = 50 * this.baseSpeed
-    const baseDelay = 1000 + this.delay * 500
-    if (!this.type) this.type = 1
 
-    // walker
-    if (this.type === 1) {
-      this.doInit(-this.speed, 0, 0, baseDelay, () => {
+    this.body.setGravityY(800)
+    this.setVelocity(-this.speed, 0)
+    this.callback = this.scene.time.addEvent({
+      delay: 1000 + this.delay * 500,
+      repeat: -1,
+      callback: () => {
         this.setVelocityX(this.speed * this.direction)
         this.setFlipX(this.direction === 1)
         this.direction = this.direction === 1 ? -1 : 1
-      })
-      // jumper
-    } else if (this.type === 2) {
-      this.shouldStop = true
-      this.doInit(-this.speed, 0, 800, baseDelay, () => {
-        this.velo = this.speed * 2
-        this.setVelocityX(this.speed * 2 * this.direction)
-        this.setVelocityY(this.speed * -5)
-        if (this.scene.cameras.main.worldView.contains(this.x, this.y))
-          this.scene.sound.play('jump', {
-            rate: Phaser.Math.RND.between(4, 5) / 10,
-            volume: 0.5,
-          })
-      })
-      this.callback2 = this.scene.time.addEvent({
-        delay: baseDelay * 1.9,
-        repeat: -1,
-        callback: () => (this.direction = this.direction === 1 ? -1 : 1),
-      })
-    }
-  }
 
-  // TODO: should be able to share damage/destroy behavior with player
-  damage = (amount) => {
-    if (this.justDamaged) return
-    this.justDamaged = true
-
-    this.health -= amount
-    this.setTintFill(0xffffff)
-
-    this.scene.time.addEvent({
-      delay: 100,
-      callback: () => {
-        this.justDamaged = false
-        this.clearTint()
+        if (!this.active) return this.setVelocity(0)
       },
     })
-
-    if (this.health <= 0) {
-      return this.destroy()
-    }
   }
 
-  destroy = () => {
-    if (!this.scene) return
-
-    this.scene.sound.play('enemyDead')
+  onDestroy = () => {
+    this.callback && this.callback.remove()
+    this.scene?.sound.play('enemyDead')
 
     const roll = Phaser.Math.RND.integerInRange(0, 10)
-    if (roll >= 3) {
-      this.scene.level.coins.add(
-        new ObjectSprite(this.scene, {
-          x: this.x,
-          y: this.y + 10,
-          type: 'health',
-          gid: 48,
-        }),
-      )
-    }
-
-    super.destroy()
-    this.callback && this.callback.remove()
-    this.callback2 && this.callback2.remove()
+    if (roll <= 3) return
+    this.scene.level.coins.add(
+      new ObjectSprite(this.scene, {
+        x: this.x,
+        y: this.y + 10,
+        type: 'health',
+        gid: 48,
+      }),
+    )
   }
 }
+
+const getPropValue = (props, n, value = 0) =>
+  (props.properties || []).find((p) => p.name === n)?.value || value

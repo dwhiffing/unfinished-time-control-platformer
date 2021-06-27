@@ -7,7 +7,8 @@ export class Spike extends Phaser.Physics.Arcade.Sprite {
     this.scene.physics.world.enable(this)
     this.setSize(15, 8, false).setOrigin(0).setOffset(1, 8)
   }
-  overlap(player) {
-    player.damage(10)
+
+  overlap(entity) {
+    entity.damage(10)
   }
 }

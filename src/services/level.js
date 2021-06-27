@@ -11,10 +11,7 @@ export default class LevelService {
 
     const groundTiles = this.map.addTilesetImage('tilemap')
     this.groundLayer = this.map.createDynamicLayer('World', groundTiles, 0, 0)
-    // const overlay = this.map.createDynamicLayer('Overlay', groundTiles, 0, 0)
-    // overlay.setDepth(99)
     this.groundLayer.setCollisionByExclusion([-1])
-
     this.groundLayer.layer.data.forEach(function (row) {
       row.forEach(function (tile) {
         if (tile.index === 3) {
@@ -24,6 +21,9 @@ export default class LevelService {
         }
       })
     })
+
+    // const overlay = this.map.createDynamicLayer('Overlay', groundTiles, 0, 0)
+    // overlay.setDepth(99)
 
     this.playerGroup = scene.add.group()
     this.coins = scene.physics.add.group({ allowGravity: false })

@@ -42,10 +42,8 @@ export default class HudService {
       delay: 1000,
       repeat: -1,
       callback: () => {
-        if (this.timer < 0) {
-          this.scene.scene.restart()
-        }
-        if (this.timer >= 0) this.timerText.setText(this.timer--)
+        if (this.timer < 0) this.scene.scene.restart()
+        else this.timerText.setText(this.timer--)
       },
     })
   }

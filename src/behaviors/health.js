@@ -3,6 +3,7 @@ export const HEALTH = {
     maxHealth: 100,
     onDamageSoundKey: 'hit',
     screenShake: false,
+    knockback: 0,
     onHealthChange: () => {},
     onDestroy: () => {},
   },
@@ -28,12 +29,16 @@ export const HEALTH = {
 
       if (entity.health <= 0) entity.die()
 
-      entity.setVelocity(entity.flipX ? 100 : -100, -100)
       entity.setTintFill(0xffffff)
       entity.scene.time.addEvent({
-        delay: 250,
+        delay: 400,
         callback: entity.clearTint.bind(entity),
       })
+
+      entity.setVelocity(
+        entity.flipX ? opts.knockback : -opts.knockback,
+        -opts.knockback,
+      )
 
       if (opts.screenShake) entity.scene.cameras.main.shake(100, 0.015)
 
@@ -49,12 +54,10 @@ export const HEALTH = {
       entity.scene.time.addEvent({
         delay: 500,
         callback: () => {
-          onDestroy()
+          opts.onDestroy()
           entity.destroy()
         },
       })
     }
   },
-
-  update(entity) {},
 }

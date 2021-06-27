@@ -1,7 +1,23 @@
 export default class InputService {
-  constructor(scene, listeners = {}) {
+  constructor(scene) {
     this.scene = scene
-    this.listeners = listeners
+    this.direction = {}
+    this.listeners = {
+      leftPressed: () => (this.direction.left = true),
+      leftReleased: () => (this.direction.left = false),
+      rightPressed: () => (this.direction.right = true),
+      rightReleased: () => (this.direction.right = false),
+      upPressed: () => (this.direction.up = true),
+      upReleased: () => (this.direction.up = false),
+      downPressed: () => (this.direction.down = true),
+      downReleased: () => (this.direction.down = false),
+      shootPressed: () => this.scene.player.shoot(),
+      restartPressed: () => this.scene.scene.restart(),
+      jumpPressed: () => {
+        if (this.direction.down) this.scene.player.fall()
+        else this.scene.player.jump()
+      },
+    }
     const noop = () => {}
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -13,19 +29,20 @@ export default class InputService {
       this.xKey = this.scene.input.keyboard.addKey('X')
       this.rKey = this.scene.input.keyboard.addKey('R')
 
-      this.cursors.up.addListener('down', listeners.upPressed || noop)
-      this.cursors.up.addListener('up', listeners.upReleased || noop)
-      this.cursors.left.addListener('down', listeners.leftPressed || noop)
-      this.cursors.left.addListener('up', listeners.leftReleased || noop)
-      this.cursors.right.addListener('down', listeners.rightPressed || noop)
-      this.cursors.right.addListener('up', listeners.rightReleased || noop)
-      this.cursors.down.addListener('down', listeners.downPressed || noop)
-      this.cursors.down.addListener('up', listeners.downReleased || noop)
-      this.zKey.addListener('down', listeners.shootPressed || noop)
-      this.zKey.addListener('up', listeners.shootReleased || noop)
-      this.spaceKey.addListener('down', listeners.jumpPressed || noop)
-      this.spaceKey.addListener('up', listeners.jumpReleased || noop)
-      this.rKey.addListener('down', listeners.restartPressed || noop)
+      this.cursors.up.addListener('down', this.listeners.upPressed || noop)
+      this.cursors.up.addListener('up', this.listeners.upReleased || noop)
+      this.cursors.left.addListener('down', this.listeners.leftPressed || noop)
+      this.cursors.left.addListener('up', this.listeners.leftReleased || noop)
+      this.cursors.right.addListener(
+        'down',
+        this.listeners.rightPressed || noop,
+      )
+      this.cursors.right.addListener('up', this.listeners.rightReleased || noop)
+      this.cursors.down.addListener('down', this.listeners.downPressed || noop)
+      this.cursors.down.addListener('up', this.listeners.downReleased || noop)
+      this.zKey.addListener('down', this.listeners.shootPressed || noop)
+      this.spaceKey.addListener('down', this.listeners.jumpPressed || noop)
+      this.rKey.addListener('down', this.listeners.restartPressed || noop)
     }
   }
 

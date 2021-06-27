@@ -4,7 +4,7 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.fire = this.fire.bind(this)
     scene.physics.world.enable(this)
     this.body.setAllowGravity(false)
-    this.speed = 160
+    this.speed = 200
     this.damageAmount = 10
     this.particles = this.scene.add.particles('tilemap')
     this.emitter = this.particles.createEmitter(BULLET_EMITTER_CONFIG).stop()
@@ -25,7 +25,7 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     this.lifeSpan = lifeSpan
   }
 
-  update(time, delta) {
+  update() {
     this.emitter.setPosition(this.x, this.y)
     if (Math.abs(this.x - this.startX) > this.lifeSpan) {
       this.destroy(false)

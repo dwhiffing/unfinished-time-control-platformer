@@ -26,18 +26,16 @@ export class ObjectSprite extends Phaser.Physics.Arcade.Sprite {
     }, 0)
   }
 
-  overlap(player, callback) {
-    if (this.type === 'coin') {
-      this.destroy()
-    }
+  overlap(player) {
+    // if (this.type === 'coin')
     if (this.type === 'upgrade') {
       player.unlock(this.name)
-      this.destroy()
     }
     if (this.type === 'health') {
       this.scene.sound.play('pickup')
       player.heal(20)
-      this.destroy()
     }
+
+    this.destroy()
   }
 }

@@ -38,6 +38,18 @@
                  "width":0,
                  "x":80,
                  "y":280
+                }, 
+                {
+                 "gid":80,
+                 "height":16,
+                 "id":378,
+                 "name":"",
+                 "rotation":0,
+                 "type":"enemy",
+                 "visible":true,
+                 "width":16,
+                 "x":176,
+                 "y":304
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -46,7 +58,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":378,
+ "nextobjectid":379,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.3.4",

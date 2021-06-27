@@ -1,41 +1,50 @@
 export const JUMP = {
-  options: {},
+  options: {
+    gravity: 500,
+    jumpHeight: 200,
+    jumpCount: 1,
+    playSound: true,
+    emitter: true,
+  },
 
   $create: function (entity, opts) {
-    entity.body.setGravityY(500)
+    entity.body.setGravityY(opts.gravity)
     entity.jumpCount = 1
-    const scene = entity.scene
 
-    entity.particles = entity.scene.add.particles('tilemap')
-    entity.jumpEmitter = entity.particles
-      .createEmitter(JUMP_PARTICLE_CONFIG)
-      .stop()
-
-    scene.anims.create({
-      key: `jump`,
-      frameRate: 5,
-      frames: scene.anims.generateFrameNames('tilemap', {
-        start: 155,
-        end: 156,
-      }),
-    })
+    if (opts.emitter)
+      entity.jumpEmitter = entity.scene.add
+        .particles('tilemap')
+        .createEmitter(JUMP_PARTICLE_CONFIG)
+        .stop()
 
     entity.jump = () => {
-      if (entity.tintFill) return
+      if (entity.tintFill || entity.jumpCount === 0) return
 
-      if (entity.direction.down && entity.canFall) {
-        return entity.fall()
+      entity.body.useDamping = false
+      entity.jumpCount--
+      entity.body?.setVelocityY(-opts.jumpHeight)
+      entity.anims?.play('jump', true)
+
+      if (opts.emitter) entity.jumpEmitter.explode(20)
+
+      if (opts.playSound) {
+        const rate = Phaser.Math.RND.between(8, 10) / 10
+        entity.scene.sound.play('jump', { rate })
       }
+    }
 
-      if (entity.jumpCount > 0) {
-        entity.jumpCount--
-        entity.jumpEmitter.explode(20)
-        entity.scene.sound.play('jump', {
-          rate: Phaser.Math.RND.between(8, 10) / 10,
-        })
-        if (entity.anims) entity.anims.play(`jump`, true)
+    entity.land = () => {
+      if (!entity.inAir) return
 
-        entity.body && entity.body.setVelocityY(-200)
+      entity.inAir = false
+      entity.body.useDamping = true
+      entity.jumpCount = opts.jumpCount
+
+      if (opts.emitter) entity.jumpEmitter.explode(20)
+
+      if (opts.playSound) {
+        const rate = Phaser.Math.RND.between(9, 10) / 10
+        entity.scene.sound.play('hit2', { rate, volume: 0.5 })
       }
     }
   },
@@ -43,38 +52,16 @@ export const JUMP = {
   update(entity) {
     if (!entity.body) return
 
-    entity.jumpEmitter.setPosition(
+    entity.jumpEmitter?.setPosition(
       entity.x + (entity.flipX ? 2 : -2),
-      entity.y + 6,
+      entity.y + 10,
     )
 
-    if (!entity.body.onFloor()) {
-      entity.inAir = true
-    }
-
-    if (entity.body.onFloor() && entity.inAir) {
-      entity.inAir = false
-      entity.jumpCount = 1
-      entity.jumpEmitter.explode(20)
-      entity.scene.sound.play('hit2', {
-        rate: Phaser.Math.RND.between(9, 10) / 10,
-        volume: 0.5,
-      })
+    if (entity.body?.onFloor()) {
+      entity.land()
     } else {
       entity.body.setAllowGravity(true)
-    }
-
-    entity.fall = () => {
-      if (this.body.onFloor() && this.canFall) {
-        this.body.setVelocityY(20)
-        this.scene.level.playerCollider.active = false
-        this.scene.time.addEvent({
-          delay: 400,
-          callback: () => {
-            this.scene.level.playerCollider.active = true
-          },
-        })
-      }
+      entity.inAir = true
     }
   },
 }
@@ -91,4 +78,25 @@ const JUMP_PARTICLE_CONFIG = {
   gravityY: -10,
   alpha: { start: 0.5, end: 0 },
   scale: { start: 0.2, end: 0 },
+}
+
+export const FALL = {
+  options: {},
+
+  $create: function (entity, opts) {
+    entity.fall = () => {
+      if (!entity.body?.onFloor() || !entity.canFall) return
+
+      entity.body.setVelocityY(20)
+      entity.scene.level.playerCollider.active = false
+      entity.scene.time.addEvent({
+        delay: 400,
+        callback: () => {
+          entity.scene.level.playerCollider.active = true
+        },
+      })
+    }
+  },
+
+  update(entity) {},
 }

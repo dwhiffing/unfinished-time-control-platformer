@@ -8,7 +8,7 @@ export const SCROLL = {
 
   update(entity) {
     entity.iter += 0.001
-    entity.tilePositionX = Math.floor(Math.cos(-entity.iter) * 400)
+    entity.tilePositionX = Math.floor(Math.cos(-entity.iter) * 100)
     entity.tilePositionY = Math.floor(Math.sin(-entity.iter) * 400)
   },
 }

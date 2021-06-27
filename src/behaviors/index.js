@@ -1,5 +1,5 @@
 export { WALK } from './walk'
-export { JUMP } from './jump'
+export { JUMP, FALL } from './jump'
 export { SHOOT } from './shoot'
 export { HEALTH } from './health'
 export { SCROLL } from './scroll'

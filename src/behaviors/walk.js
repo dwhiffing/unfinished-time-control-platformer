@@ -1,100 +1,74 @@
 export const WALK = {
-  options: {},
+  options: {
+    speed: 20,
+    maxSpeed: 100,
+    drag: 0.9,
+    sound: true,
+    emitter: true,
+  },
 
   $create: function (entity, opts) {
-    const scene = entity.scene
-    entity.body.setMaxVelocity(600, 600)
+    entity.body.setMaxVelocity(opts.maxSpeed, opts.maxSpeed * 2)
     entity.body.useDamping = true
-    entity.setDrag(0.8, 1)
-    entity.walkParticles = entity.scene.add.particles('tilemap')
-    entity.walkEmitter = entity.walkParticles
-      .createEmitter(WALK_PARTICLE_CONFIG)
-      .stop()
-    entity.speed = 90
+    entity.setDrag(opts.drag, 1)
+    entity.speed = opts.speed
 
-    scene.anims.create({
-      key: `idle`,
-      frameRate: 4,
-      repeat: -1,
-      frames: scene.anims.generateFrameNames('tilemap', {
-        start: 153,
-        end: 154,
-      }),
-    })
+    const playWalkSound = () => {
+      if (!opts.sound) return
+      const rate = Phaser.Math.RND.between(3, 6) / 10
+      entity.scene.sound.play('hit2', { rate, volume: 0.2 })
+    }
 
-    scene.anims.create({
-      key: `walk`,
-      frameRate: 6,
-      frames: scene.anims.generateFrameNames('tilemap', {
-        start: 151,
-        end: 152,
-      }),
-    })
+    if (opts.emitter)
+      entity.walkEmitter = entity.scene.add
+        .particles('tilemap')
+        .createEmitter(WALK_PARTICLE_CONFIG)
+        .stop()
 
-    entity.walk = () => {
+    entity.walk = (isLeft) => {
       if (entity.tintFill) return
-      let speed = entity.speed
 
-      if (entity.body.onFloor()) {
-        if (!entity.walkEmitter.on) {
-          entity.walkEmitter.flow(300 - 100)
-          if (!entity.runSoundCallback) {
-            entity.runSoundCallback = entity.scene.time.addEvent({
-              delay: 500 - 120,
-              repeat: -1,
-              callback: () => {
-                entity.scene.sound.play('hit2', {
-                  rate: Phaser.Math.RND.between(3, 6) / 10,
-                  volume: 0.2,
-                })
-              },
-            })
-          }
-        }
-        entity.anims.play(`walk`, true)
-      }
-      if (
-        entity.body.onFloor() ||
-        (entity.body.velocity.x < speed && entity.body.velocity.x > -speed)
-      ) {
-        const velo = entity.direction.left
-          ? -speed
-          : entity.direction.right
-          ? speed
-          : 0
-        entity.body.setVelocityX(velo)
-      }
+      entity.flipX = isLeft
+      entity.anims.play(`walk`, true)
 
-      entity.flipX = entity.direction.left
+      const s = entity.body?.onFloor() ? entity.speed : entity.speed / 3
+      entity.body.velocity.x += isLeft ? -s : s
+
+      if (!entity.body?.onFloor()) return
+
+      if (!entity.walkEmitter.on) entity.walkEmitter.flow(200)
+
+      if (!entity.runSoundCallback)
+        entity.runSoundCallback = entity.scene.time.addEvent({
+          delay: 380,
+          repeat: -1,
+          callback: playWalkSound,
+        })
     }
 
     entity.stop = () => {
-      if (entity.tintFill) return
-      if (entity.body.onFloor()) {
-        entity.walkEmitter.stop()
-        entity.anims.play(`idle`, true)
-      }
+      if (entity.tintFill || !entity.body?.onFloor()) return
+
+      entity.walkEmitter.stop()
+      entity.runSoundCallback?.remove()
+      entity.runSoundCallback = null
+      entity.anims.play(`idle`, true)
     }
   },
 
   update(entity) {
-    if (!entity.body) return
+    const { x, y, flipX } = entity
 
-    entity.walkEmitter.setPosition(
-      entity.x + (entity.flipX ? 2 : -2),
-      entity.y + 6,
-    )
+    entity.walkEmitter?.setPosition(x + (flipX ? 2 : -2), y + 6)
 
-    if (!entity.body.onFloor()) {
-      if (entity.walkEmitter.on) entity.walkEmitter.stop()
-    }
+    if (!entity.body?.onFloor() && entity.walkEmitter.on)
+      entity.walkEmitter.stop()
 
-    if (!entity.direction.left && !entity.direction.right) {
-      entity.runSoundCallback && entity.runSoundCallback.remove()
-      entity.runSoundCallback = null
-      entity.stop()
+    const { left, right } = entity.scene.inputService.direction
+    if (left || right) {
+      entity.walk(left)
     } else {
-      entity.walk()
+      entity.stop()
     }
   },
 }
