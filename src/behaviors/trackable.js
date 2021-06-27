@@ -12,7 +12,9 @@ export const TRACKABLE = {
     let current_frame = Math.floor((entity.scene._time / 1000) * HISTORY_RATE)
 
     while (current_frame > entity.last_frame) {
-      entity.history.unshift(pick(entity, ['x', 'y', 'flipX']))
+      entity.history.unshift(
+        pick(entity, ['x', 'y', 'flipX', 'active', 'visible']),
+      )
       entity.last_frame += 1
     }
 

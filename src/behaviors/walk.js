@@ -27,17 +27,22 @@ export const WALK = {
     entity.walk = (isLeft) => {
       if (entity.tintFill || entity.scene.timeScale <= 0) return
 
-      if (entity.anims?.currentAnim?.key !== 'walk') {
-        entity.play({ key: 'walk', frameRate: 6, repeat: -1 })
-      }
-
       entity.flipX = isLeft
 
       const s = entity.body?.onFloor() ? entity.speed : entity.speed / 3
 
       entity.body.velocity.x += isLeft ? -s : s
 
-      if (!entity.body?.onFloor()) return
+      if (!entity.body?.onFloor()) {
+        entity.walkEmitter.stop()
+        entity.runSoundCallback?.remove()
+        entity.runSoundCallback = null
+        return
+      }
+
+      if (entity.anims?.currentAnim?.key !== 'walk') {
+        entity.play({ key: 'walk', frameRate: 6, repeat: -1 })
+      }
 
       if (!entity.walkEmitter.on) entity.walkEmitter.flow(200)
 

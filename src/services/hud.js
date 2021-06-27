@@ -30,7 +30,10 @@ export default class HudService {
       repeat: -1,
       callback: () => {
         if (this.timer < 0) this.scene.scene.restart()
-        else this.timerText.setText(this.timer--)
+        else {
+          this.timer += this.scene.timeScale > 0 ? -1 : 1
+          this.timerText.setText(this.timer)
+        }
       },
     })
   }

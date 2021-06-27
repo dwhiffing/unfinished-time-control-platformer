@@ -6,9 +6,6 @@ export default class InputService {
 
     const player = this.scene.level.player
 
-    const getFrames = (start, end) =>
-      scene.anims.generateFrameNames('tilemap', { start, end })
-
     this.listeners = {
       leftPressed: () => (this.direction.left = true),
       leftReleased: () => (this.direction.left = false),
@@ -22,6 +19,12 @@ export default class InputService {
       spacePressed: () => {
         if (this.direction.down) player.fall()
         else player.jump()
+      },
+      cPressed: () => {
+        this.scene.timeScale = -1
+      },
+      cReleased: () => {
+        this.scene.timeScale = 1
       },
       xPressed: () => {
         this.scene.tweens.add({
@@ -62,6 +65,7 @@ export default class InputService {
       this.spaceKey = this.scene.input.keyboard.addKey('SPACE')
       this.zKey = this.scene.input.keyboard.addKey('Z')
       this.xKey = this.scene.input.keyboard.addKey('X')
+      this.cKey = this.scene.input.keyboard.addKey('C')
 
       this.cursors.up.addListener('down', this.listeners.upPressed || noop)
       this.cursors.up.addListener('up', this.listeners.upReleased || noop)
@@ -78,6 +82,8 @@ export default class InputService {
       this.zKey.addListener('up', this.listeners.zReleased || noop)
       this.xKey.addListener('down', this.listeners.xPressed || noop)
       this.xKey.addListener('up', this.listeners.xReleased || noop)
+      this.cKey.addListener('down', this.listeners.cPressed || noop)
+      this.cKey.addListener('up', this.listeners.cReleased || noop)
       this.spaceKey.addListener('down', this.listeners.spacePressed || noop)
       this.spaceKey.addListener('up', this.listeners.spaceReleased || noop)
     }
