@@ -6,6 +6,26 @@ export default class InputService {
 
     const player = this.scene.level.player
 
+    const changeTimeScale = (n) => {
+      const targets =
+        n < 0
+          ? [this.scene]
+          : [
+              this.scene,
+              this.scene.physics.world,
+              this.scene.time,
+              this.scene.tweens,
+              this.scene.particles,
+              player.anims,
+            ]
+      this.scene.tweens.add({
+        targets,
+        timeScale: { value: (a, b, c, d) => (d === 1 ? 1 / n : n) },
+        ease: 'Power1',
+        duration: 800,
+      })
+    }
+
     this.listeners = {
       leftPressed: () => (this.direction.left = true),
       leftReleased: () => (this.direction.left = false),
@@ -20,42 +40,17 @@ export default class InputService {
         if (this.direction.down) player.fall()
         else player.jump()
       },
-      cPressed: () => {
-        this.scene.timeScale = -1
+      bPressed: () => {
+        this.scene._time = 0
+        this.scene.hud.timer = 300
+        player.clone()
       },
-      cReleased: () => {
-        this.scene.timeScale = 1
-      },
-      xPressed: () => {
-        this.scene.tweens.add({
-          targets: [
-            this.scene.physics.world,
-            this.scene,
-            this.scene.time,
-            this.scene.tweens,
-            this.scene.particles,
-            player.anims,
-          ],
-          props: { timeScale: { value: (a, b, c, d) => (d === 0 ? 4 : 0.25) } },
-          ease: 'Power1',
-          duration: 800,
-        })
-      },
-      xReleased: () => {
-        this.scene.tweens.add({
-          targets: [
-            this.scene.physics.world,
-            this.scene,
-            this.scene.time,
-            this.scene.tweens,
-            this.scene.particles,
-            player.anims,
-          ],
-          props: { timeScale: 1 },
-          ease: 'Power1',
-          duration: 800,
-        })
-      },
+      vPressed: () => changeTimeScale(2),
+      cPressed: () => changeTimeScale(-1),
+      xPressed: () => changeTimeScale(0.25),
+      cReleased: () => changeTimeScale(1),
+      vReleased: () => changeTimeScale(1),
+      xReleased: () => changeTimeScale(1),
     }
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -66,6 +61,8 @@ export default class InputService {
       this.zKey = this.scene.input.keyboard.addKey('Z')
       this.xKey = this.scene.input.keyboard.addKey('X')
       this.cKey = this.scene.input.keyboard.addKey('C')
+      this.vKey = this.scene.input.keyboard.addKey('V')
+      this.bKey = this.scene.input.keyboard.addKey('B')
 
       this.cursors.up.addListener('down', this.listeners.upPressed || noop)
       this.cursors.up.addListener('up', this.listeners.upReleased || noop)
@@ -84,8 +81,11 @@ export default class InputService {
       this.xKey.addListener('up', this.listeners.xReleased || noop)
       this.cKey.addListener('down', this.listeners.cPressed || noop)
       this.cKey.addListener('up', this.listeners.cReleased || noop)
+      this.vKey.addListener('down', this.listeners.vPressed || noop)
+      this.vKey.addListener('up', this.listeners.vReleased || noop)
       this.spaceKey.addListener('down', this.listeners.spacePressed || noop)
       this.spaceKey.addListener('up', this.listeners.spaceReleased || noop)
+      this.bKey.addListener('down', this.listeners.bPressed || noop)
     }
   }
 

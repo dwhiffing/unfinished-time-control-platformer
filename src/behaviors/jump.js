@@ -1,6 +1,5 @@
 export const JUMP = {
   options: {
-    gravity: 500,
     jumpHeight: 200,
     jumpCount: 2,
     playSound: true,
@@ -8,7 +7,6 @@ export const JUMP = {
   },
 
   $create: function (entity, opts) {
-    entity.body.setGravityY(opts.gravity)
     entity.jumpCount = 1
 
     if (opts.emitter)
