@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import * as scenes from './scenes'
+import BehaviorPlugin from './behavior'
 
 const game = new Phaser.Game({
   transparent: true,
@@ -23,6 +24,9 @@ const game = new Phaser.Game({
       tileBias: 16,
       // debug: true,
     },
+  },
+  plugins: {
+    global: [{ key: 'BehaviorPlugin', plugin: BehaviorPlugin, start: true }],
   },
   scene: Object.values(scenes),
 })

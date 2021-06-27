@@ -29,25 +29,23 @@ export default class extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(998)
 
+    this.heartImage = this.add
+      .image(10, 8, 'tilemap', 47)
+      .setScrollFactor(0)
+      .setDepth(999)
     this.healthText = this.add
       .bitmapText(20, 6, 'pixel-dan', '100')
       .setScrollFactor(0)
       .setDepth(999)
 
+    // this.ammoImage = this.add
+    //   .image(45, 9, 'tilemap', 49)
+    //   .setScrollFactor(0)
+    //   .setDepth(999)
     // this.ammoText = this.add
     //   .bitmapText(55, 6, 'pixel-dan', '5')
     //   .setScrollFactor(0)
     //   .setDepth(999)
-
-    this.heartImage = this.add
-      .image(10, 8, 'tilemap', 47)
-      .setScrollFactor(0)
-      .setDepth(999)
-
-    this.ammoImage = this.add
-      .image(45, 9, 'tilemap', 49)
-      .setScrollFactor(0)
-      .setDepth(999)
 
     this.timerImage = this.add
       .image(this.cameras.main.width - 25, 9, 'tilemap', 212)
@@ -63,6 +61,8 @@ export default class extends Phaser.Scene {
       .bitmapText(10, this.cameras.main.height - 10, 'pixel-dan', '')
       .setScrollFactor(0)
       .setDepth(999)
+
+    this.behavior = this.plugins.get('BehaviorPlugin')
 
     this.time.addEvent({
       delay: 1000,
@@ -85,6 +85,8 @@ export default class extends Phaser.Scene {
     this.iter += 0.0008
     this.background.tilePositionX = Math.floor(Math.cos(-this.iter) * 500)
     this.background.tilePositionY = Math.floor(Math.sin(-this.iter) * 100)
+    this.behavior.preUpdate()
+    this.behavior.update()
     this.inputService.update(time, delta)
     this.level.update(time, delta)
     this.level.player.update()

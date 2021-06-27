@@ -1,11 +1,10 @@
+import { WALK } from '../behaviors'
 import { Bullet } from './Bullet'
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, object) {
     super(scene, object.x, object.y, 'tilemap')
     this.scene = scene
-    this.walk = this.walk.bind(this)
-    this.stop = this.stop.bind(this)
     this.die = this.die.bind(this)
     this.jump = this.jump.bind(this)
     scene.add.existing(this)
@@ -13,10 +12,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setGravityY(500)
     this.direction = { left: false, right: false, up: false, down: false }
 
+    this.scene.behavior.enable(this)
+    this.behaviors.set('walk', WALK)
+
     this.type = object.name
     this.name = 'player'
     this.canShoot = true
-    this.canMove = true
     this.unlocks = {
       speed: 1,
       health: 1,
@@ -31,9 +32,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       .setDepth(99)
       .setAlpha(0)
 
-    this.body.setMaxVelocity(600, 600)
-    this.body.useDamping = true
-    this.setDrag(0.8, 1)
     this.setSize(7, 11)
     this.setOffset(5, 5)
     this.setDepth(2)
@@ -41,9 +39,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.particles = this.scene.add.particles('tilemap')
     this.jumpEmitter = this.particles.createEmitter(JUMP_PARTICLE_CONFIG).stop()
-    this.walkEmitter = this.particles.createEmitter(WALK_PARTICLE_CONFIG).stop()
-
-    this.speed = 90
     this.maxHealth = 100
     this.health = this.maxHealth
     // this.scene.ammoText.text = this.ammo.toString()
@@ -58,23 +53,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.cameras.main.startFollow(this, true, 0.1, 0.1, 0, 5)
 
     scene.anims.create({
-      key: `idle`,
-      frameRate: 4,
-      repeat: -1,
-      frames: scene.anims.generateFrameNames('tilemap', {
-        start: 153,
-        end: 154,
-      }),
-    })
-    this.walkAnim = scene.anims.create({
-      key: `walk`,
-      frameRate: 6,
-      frames: scene.anims.generateFrameNames('tilemap', {
-        start: 151,
-        end: 152,
-      }),
-    })
-    scene.anims.create({
       key: `jump`,
       frameRate: 5,
       frames: scene.anims.generateFrameNames('tilemap', {
@@ -82,51 +60,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         end: 156,
       }),
     })
-  }
-
-  walk() {
-    if (!this.canMove) return
-    let speed = this.speed
-
-    if (this.body.onFloor()) {
-      if (!this.walkEmitter.on) {
-        this.walkEmitter.flow(300 - 100)
-        if (!this.runSoundCallback) {
-          this.runSoundCallback = this.scene.time.addEvent({
-            delay: 500 - 120,
-            repeat: -1,
-            callback: () => {
-              this.scene.sound.play('hit2', {
-                rate: Phaser.Math.RND.between(3, 6) / 10,
-                volume: 0.2,
-              })
-            },
-          })
-        }
-      }
-      this.anims.play(`walk`, true)
-    }
-    if (
-      this.body.onFloor() ||
-      (this.body.velocity.x < speed && this.body.velocity.x > -speed)
-    ) {
-      const velo = this.direction.left
-        ? -speed
-        : this.direction.right
-        ? speed
-        : 0
-      this.body.setVelocityX(velo)
-    }
-
-    this.flipX = this.direction.left
-  }
-
-  stop() {
-    if (!this.canMove) return
-    if (this.body.onFloor()) {
-      this.walkEmitter.stop()
-      this.anims.play(`idle`, true)
-    }
   }
 
   update() {
