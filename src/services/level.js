@@ -35,7 +35,7 @@ export default class LevelService {
     this.objLayer = this.map.getObjectLayer('Objects')
     this.objLayer.objects.forEach((object) => {
       if (object.type === 'spawn') {
-        this.player = new Player(scene, object)
+        this.player = new Player(scene, object.x, object.y)
       }
       if (object.type === 'enemy-spawn') {
         this.spawners.push(object)

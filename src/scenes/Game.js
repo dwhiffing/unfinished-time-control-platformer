@@ -18,6 +18,25 @@ export default class extends Phaser.Scene {
     this.history = { player: [] }
     this._time = 0
     this.timeScale = 1
+
+    const getFrames = (start, end) =>
+      this.anims.generateFrameNames('tilemap', { start, end })
+
+    this.anims.create({
+      key: `idle`,
+      repeat: -1,
+      frames: getFrames(153, 154),
+    })
+
+    this.anims.create({
+      key: `walk`,
+      frames: getFrames(151, 152),
+    })
+
+    this.anims.create({
+      key: 'jump',
+      frames: getFrames(155, 156),
+    })
   }
 
   playSound(key, _rate = [8, 10], opts = {}) {
