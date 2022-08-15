@@ -1,4 +1,4 @@
-import { WALK, TRACKABLE, FALL, JUMP, SHOOT, HEALTH } from '../behaviors'
+import { WALK, FALL, JUMP, SHOOT, HEALTH } from '../behaviors'
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, controlled = true) {
@@ -14,10 +14,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setOffset(5, 5)
     this.setDepth(2)
     this.setAlpha(1)
+    this.body.setGravityY(800)
 
-    this.behaviors.set('trackable', TRACKABLE)
     if (controlled) {
-      console.log('asd')
       this.behaviors.set('walk', WALK)
       this.behaviors.set('jump', JUMP)
       this.behaviors.set('fall', FALL)

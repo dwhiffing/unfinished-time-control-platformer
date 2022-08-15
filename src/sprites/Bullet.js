@@ -1,12 +1,9 @@
-import { TRACKABLE } from '../behaviors'
-
 export class Bullet extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'tilemap', 50)
     this.fire = this.fire.bind(this)
     scene.physics.world.enable(this)
     this.scene.behavior.enable(this)
-    this.behaviors.set('trackable', TRACKABLE)
     this.body.setAllowGravity(false)
     this.speed = 200
     this.scene = scene
